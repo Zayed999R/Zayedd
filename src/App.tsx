@@ -29,7 +29,7 @@ export default function App() {
   const [chat, setChat] = useState<Message[]>([
     {
       role: "ai",
-      text: "Hello 👋 I am Verse AI. Ask me anything about crypto, Web3, or blockchain technologies. You can also upload images of charts or contracts for analysis.",
+      text: "Hello 👋 I am Zayedd AI. I am a smart assistant here to chat freely and help you with almost anything — from general conversations, learning, ideas, and tech, to Crypto, Web3, blockchain, and NFTs. Ask me anything!",
     },
   ]);
 
@@ -113,7 +113,20 @@ export default function App() {
         model: "gemini-3-flash-preview",
         contents,
         config: {
-          systemInstruction: "You are Verse AI, a sophisticated crypto and Web3 assistant. You specialize in blockchain technology, DeFi, NFTs, and crypto markets. You can analyze images of market charts, smart contracts, or Web3 interfaces. Provide accurate, technical yet accessible information. Be professional, direct, and helpful. If a user asks for financial advice, clarify that you provide information for educational purposes and are not a financial advisor. \n\nSPECIFIC VERSE INSTRUCTIONS:\n- If a user asks about earning from Verse or Verse earnings: Provide the registration link http://hub.vgdh.io and ask them to register a wallet.\n- If a user asks about the Verse community or joining the Verse ecosystem: Provide the community link https://t.me/GetVerse/177601 and ask them to join. \n- When directing users to the community, instruct them to mention @Zayed999R and say: 'im new here reffar by : @Zayed999R'",
+          systemInstruction: `You are Zayedd AI, a sophisticated, highly intelligent assistant built to chat freely with everyone and give fast, helpful, and smart responses. 
+          You can answer almost anything people ask: from simple "Hi", daily conversations, and creative suggestions to specialized topics like technology, learning, ideas, Crypto, Web3, Blockchain, NFTs, and more.
+          You can analyze images of market charts, smart contracts, or Web3 interfaces. Provide accurate, accessible yet smart information. Be friendly, professional, direct, and helpful.
+          If a user asks for financial advice, clarify that you provide information for educational purposes and are not a financial advisor.
+
+          VERSE ECOSYSTEM INFO:
+          - Verse is the native token of the Verse ecosystem, built to power the community, Web3 innovation, and future decentralized utilities.
+          - It plays an important role inside the ecosystem by supporting community engagement, rewards & utilities, future Web3 integrations, and ecosystem growth and development.
+          - Verse aims to create a stronger connection between technology, community, and the future of decentralized innovation.
+
+          SPECIFIC VERB COMMANDS:
+          - If a user asks about earning from Verse or Verse earnings: Provide the registration link http://hub.vgdh.io and ask them to register a wallet.
+          - If a user asks about the Verse community or joining the Verse ecosystem: Provide the community link https://t.me/GetVerse/177601 and ask them to join. 
+          - When directing users to the community, instruct them to mention @Zayed999R and say: 'im new here reffar by : @Zayed999R'`,
         },
       });
 
@@ -126,13 +139,22 @@ export default function App() {
           text: aiReply,
         },
       ]);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Gemini API Error:", error);
+      
+      let errorMessage = "I encountered an error connecting to my neural network. Please try again later.";
+      
+      if (error?.message?.includes("PERMISSION_DENIED") || error?.status === 403) {
+        errorMessage = "API Permission Denied. Please ensure your GEMINI_API_KEY is correctly set in the 'Settings > Secrets' panel of AI Studio.";
+      } else if (error?.message?.includes("API_KEY_INVALID")) {
+        errorMessage = "Invalid API Key. Please check your GEMINI_API_KEY in the 'Settings > Secrets' panel.";
+      }
+
       setChat((prev) => [
         ...prev,
         {
           role: "ai",
-          text: "I encountered an error connecting to my neural network. Please check your connection or try again later.",
+          text: errorMessage,
         },
       ]);
     } finally {
@@ -163,17 +185,26 @@ export default function App() {
           </div>
           <div>
             <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-              Verse <span className="text-cyan-400">AI</span>
+              Zayedd <span className="text-cyan-400">AI</span>
               <span className="text-[10px] uppercase tracking-widest bg-white/10 px-1.5 py-0.5 rounded border border-white/10 text-slate-400 font-medium">BETA</span>
             </h1>
           </div>
         </div>
 
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-400">
-          <a href="#" className="hover:text-cyan-400 transition">Market</a>
-          <a href="#" className="hover:text-cyan-400 transition">DeFi</a>
-          <a href="#" className="hover:text-cyan-400 transition">NFTs</a>
-          <button className="bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-lg border border-white/10 transition flex items-center gap-2">
+          <a href="#" className="hover:text-cyan-400 transition" id="nav-item-market">Market</a>
+          <a href="#" className="hover:text-cyan-400 transition" id="nav-item-defi">DeFi</a>
+          <a href="#" className="hover:text-cyan-400 transition" id="nav-item-nfts">NFTs</a>
+          <a 
+            href="https://t.me/GetVerse/177601" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#229ED9]/10 border border-[#229ED9]/20 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all font-semibold"
+            id="nav-telegram-channel"
+          >
+            Telegram <Send className="w-3 h-3" />
+          </a>
+          <button className="bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-lg border border-white/10 transition flex items-center gap-2" id="nav-wallet-button">
              Wallet <ExternalLink className="w-3 h-3" />
           </button>
         </nav>
@@ -313,9 +344,24 @@ export default function App() {
             </button>
           </div>
         </div>
-        <p className="text-[10px] text-center text-slate-500 mt-3 tracking-wide uppercase font-medium">
-          Powered by Gemini • Verse AI does not provide financial advice
-        </p>
+        
+        <div className="flex flex-col items-center justify-center gap-2 mt-4" id="footer-links-container">
+          <a 
+            href="https://t.me/GetVerse/177601" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#229ED9]/10 border border-[#229ED9]/20 text-[#229ED9] hover:bg-[#229ED9]/20 hover:border-[#229ED9]/30 transition-all text-xs font-semibold tracking-wide shadow-lg shadow-[#229ED9]/5 cursor-pointer"
+            id="telegram-channel-link"
+          >
+            <Send className="w-3.5 h-3.5 text-[#229ED9] transform rotate-45 -translate-y-0.5" />
+            <span>Join Verse Telegram Channel</span>
+            <ExternalLink className="w-3 h-3 text-slate-400" />
+          </a>
+          
+          <p className="text-[10px] text-center text-slate-500 tracking-wide uppercase font-medium" id="footer-disclaimer-text">
+            Powered by Gemini • Zayedd AI does not provide financial advice
+          </p>
+        </div>
       </footer>
     </div>
   );
