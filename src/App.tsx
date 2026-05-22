@@ -22,6 +22,37 @@ interface Message {
   attachment?: Attachment;
 }
 
+// Verse logo component with gradient background and customized V path
+export function VerseLogo({ className = "w-6 h-6", glow = false }: { className?: string; glow?: boolean }) {
+  return (
+    <div className={`relative flex items-center justify-center shrink-0 ${glow ? "shadow-lg shadow-cyan-500/20" : ""}`}>
+      <svg 
+        viewBox="0 0 100 100" 
+        fill="none" 
+        xmlns="http://www.w3.org/2000/svg"
+        className={className}
+      >
+        <defs>
+          <radialGradient id="verseRadial" cx="30%" cy="30%" r="70%">
+            <stop offset="0%" stopColor="#2AEEFF" />
+            <stop offset="45%" stopColor="#1C75E5" />
+            <stop offset="100%" stopColor="#D400E5" />
+          </radialGradient>
+        </defs>
+        <circle cx="50" cy="50" r="48" fill="url(#verseRadial)" />
+        {/* Rounded-edge V shape */}
+        <path 
+          d="M33 36 C33 36 44 60 48.5 67.5 C49.2 68.7 50.8 68.7 51.5 67.5 C56 60 67 36 67 36" 
+          stroke="white" 
+          strokeWidth="14" 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
+        />
+      </svg>
+    </div>
+  );
+}
+
 export default function App() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +60,7 @@ export default function App() {
   const [chat, setChat] = useState<Message[]>([
     {
       role: "ai",
-      text: "Hello 👋 I am Zayedd AI. I am a smart assistant here to chat freely and help you with almost anything — from general conversations, learning, ideas, and tech, to Crypto, Web3, blockchain, and NFTs. Ask me anything!",
+      text: "Hello 👋 I am Zayed AI. I am a smart assistant here to chat freely and help you with almost anything — from general conversations, learning, ideas, and tech, to Crypto, Web3, blockchain, and NFTs. Ask me anything!",
     },
   ]);
 
@@ -113,7 +144,7 @@ export default function App() {
         model: "gemini-3-flash-preview",
         contents,
         config: {
-          systemInstruction: `You are Zayedd AI, a sophisticated, highly intelligent assistant built to chat freely with everyone and give fast, helpful, and smart responses. 
+          systemInstruction: `You are Zayed AI, a sophisticated, highly intelligent assistant built to chat freely with everyone and give fast, helpful, and smart responses. 
           You can answer almost anything people ask: from simple "Hi", daily conversations, and creative suggestions to specialized topics like technology, learning, ideas, Crypto, Web3, Blockchain, NFTs, and more.
           You can analyze images of market charts, smart contracts, or Web3 interfaces. Provide accurate, accessible yet smart information. Be friendly, professional, direct, and helpful.
           If a user asks for financial advice, clarify that you provide information for educational purposes and are not a financial advisor.
@@ -180,12 +211,10 @@ export default function App() {
       {/* Navbar */}
       <header className="sticky top-0 z-10 border-b border-white/5 bg-[#050816]/80 backdrop-blur-xl px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-            <Bot className="text-white w-6 h-6" />
-          </div>
+          <VerseLogo className="w-10 h-10" glow={true} />
           <div>
             <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-              Zayedd <span className="text-cyan-400">AI</span>
+              Zayed <span className="text-cyan-400">AI</span>
               <span className="text-[10px] uppercase tracking-widest bg-white/10 px-1.5 py-0.5 rounded border border-white/10 text-slate-400 font-medium">BETA</span>
             </h1>
           </div>
@@ -224,13 +253,13 @@ export default function App() {
               transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
               className={`flex gap-4 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
             >
-              <div className={`w-8 h-8 rounded-lg shrink-0 mt-1 flex items-center justify-center border ${
-                msg.role === "user" 
-                  ? "bg-slate-800 border-slate-700" 
-                  : "bg-cyan-500/10 border-cyan-500/20"
-              }`}>
-                {msg.role === "user" ? <User className="w-4 h-4 text-slate-400" /> : <Bot className="w-4 h-4 text-cyan-400" />}
-              </div>
+              {msg.role === "user" ? (
+                <div className="w-9 h-9 rounded-lg shrink-0 mt-1 flex items-center justify-center border bg-slate-800 border-slate-700">
+                  <User className="w-4.5 h-4.5 text-slate-400" />
+                </div>
+              ) : (
+                <VerseLogo className="w-9 h-9" />
+              )}
               
               <div
                 className={`max-w-[85%] p-4 rounded-2xl shadow-xl ${
@@ -262,9 +291,7 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="flex gap-4"
             >
-              <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                <Bot className="w-4 h-4 text-cyan-400" />
-              </div>
+              <VerseLogo className="w-9 h-9" />
               <div className="bg-white/5 backdrop-blur-md border border-white/10 p-4 rounded-2xl rounded-tl-none flex items-center gap-3">
                 <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
                 <span className="text-xs text-slate-400 font-medium tracking-wide">Processing through blockchain...</span>
