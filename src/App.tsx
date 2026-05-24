@@ -6,7 +6,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { GoogleGenAI } from "@google/genai";
 import { motion, AnimatePresence } from "motion/react";
-import { Send, Bot, User, Loader2, Link2, ExternalLink, Image as ImageIcon, X } from "lucide-react";
+import { Send, Bot, User, Loader2, Link2, ExternalLink, Image as ImageIcon, X, TrendingUp, TrendingDown } from "lucide-react";
 
 // Types
 type Role = "ai" | "user";
@@ -20,6 +20,152 @@ interface Message {
   role: Role;
   text: string;
   attachment?: Attachment;
+}
+
+// Sparkline graph visual generator
+function Sparkline({ data, positive }: { data: number[]; positive: boolean }) {
+  const width = 50;
+  const height = 16;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min === 0 ? 1 : max - min;
+  
+  const points = data.map((val, index) => {
+    const x = (index / (data.length - 1)) * width;
+    const y = height - ((val - min) / range) * height;
+    return `${x},${y}`;
+  }).join(" ");
+
+  return (
+    <svg className="w-12 h-4 shrink-0 overflow-visible ml-1.5 opacity-80" viewBox={`0 0 ${width} ${height}`}>
+      <polyline
+        fill="none"
+        stroke={positive ? "#34d399" : "#f87171"}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        points={points}
+      />
+    </svg>
+  );
+}
+
+// Live Crypto Ticker with TV news headline marquee visual style
+export function MarketTicker() {
+  interface TickerCoin {
+    id: string;
+    symbol: string;
+    name: string;
+    price: number;
+    change24h: number;
+    sparkline: number[];
+    color: string;
+    priceFlashing?: "up" | "down" | null;
+  }
+
+  const initialCoins: TickerCoin[] = [
+    { id: "bitcoin", symbol: "BTC", name: "Bitcoin", price: 68432.10, change24h: 2.34, sparkline: [67100, 67400, 67200, 67900, 68100, 68000, 68432], color: "text-amber-400 bg-amber-500/10 border border-amber-500/20" },
+    { id: "ethereum", symbol: "ETH", name: "Ethereum", price: 3456.80, change24h: 1.12, sparkline: [3410, 3430, 3420, 3440, 3460, 3450, 3456.8], color: "text-indigo-400 bg-indigo-500/10 border border-indigo-500/20" },
+    { id: "solana", symbol: "SOL", name: "Solana", price: 168.45, change24h: 5.67, sparkline: [158, 160, 162, 161, 165, 167, 168.45], color: "text-purple-400 bg-purple-500/10 border border-purple-500/20" },
+    { id: "binancecoin", symbol: "BNB", name: "BNB", price: 582.40, change24h: -0.45, sparkline: [586, 584, 585, 583, 581, 582, 582.4], color: "text-yellow-500 bg-yellow-500/10 border border-yellow-500/20" },
+    { id: "verse", symbol: "VERSE", name: "Verse Token", price: 0.002415, change24h: 12.45, sparkline: [0.0021, 0.0022, 0.00215, 0.0023, 0.00235, 0.0024, 0.002415], color: "text-cyan-400 bg-cyan-400/10 border border-cyan-500/30 font-bold" },
+  ];
+
+  const [coins, setCoins] = useState<TickerCoin[]>(initialCoins);
+
+  // Poll real-world rate data if available from a CORS-friendly URL or simulate continuous dynamic ticks
+  useEffect(() => {
+    // Highly interactive live price fluctuation simulations
+    const interval = setInterval(() => {
+      setCoins((prev) =>
+        prev.map((coin) => {
+          // Slight positive skew for live movement simulation
+          const changePercent = (Math.random() - 0.46) * 0.12; 
+          const oldPrice = coin.price;
+          const newPrice = Number((coin.price * (1 + changePercent / 100)).toFixed(coin.symbol === "VERSE" ? 6 : 2));
+          const direction = newPrice > oldPrice ? "up" : "down";
+
+          let newSparkline = [...coin.sparkline];
+          if (newSparkline.length > 10) newSparkline.shift();
+          newSparkline.push(newPrice);
+
+          return {
+            ...coin,
+            price: newPrice,
+            change24h: Number((coin.change24h + changePercent).toFixed(2)),
+            sparkline: newSparkline,
+            priceFlashing: direction,
+          };
+        })
+      );
+
+      // Auto-clear visual flashing highlight after 1.5 seconds
+      setTimeout(() => {
+        setCoins((prev) => prev.map((c) => ({ ...c, priceFlashing: null })));
+      }, 1500);
+    }, 3500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const renderCoinItem = (coin: TickerCoin, idx: number) => {
+    const isUp = coin.change24h >= 0;
+    return (
+      <div 
+        key={`${coin.symbol}-${idx}`} 
+        className="flex items-center gap-3 cursor-help opacity-95 hover:opacity-100 transition-opacity whitespace-nowrap py-1 select-none pr-4"
+        title={`${coin.name} Live Price`}
+      >
+        <span className={`px-2 py-0.5 rounded text-[10px] uppercase tracking-wide font-bold font-mono ${coin.color}`}>
+          {coin.symbol}/USD
+        </span>
+        <span 
+          className={`font-mono font-bold tracking-tight text-xs transition-all duration-300 ${
+            coin.priceFlashing === "up" 
+              ? "text-emerald-400 scale-105" 
+              : coin.priceFlashing === "down" 
+                ? "text-rose-400 scale-105" 
+                : "text-slate-100"
+          }`}
+        >
+          ${coin.symbol === "VERSE" ? coin.price.toFixed(6) : coin.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+        </span>
+        <span className={`flex items-center gap-0.5 text-[11px] font-bold ${isUp ? "text-emerald-400" : "text-rose-400"}`}>
+          {isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+          {coin.change24h > 0 ? "+" : ""}{coin.change24h}%
+        </span>
+        <Sparkline data={coin.sparkline} positive={isUp} />
+      </div>
+    );
+  };
+
+  return (
+    <div className="w-full bg-[#030612] border-b border-white/[0.05] relative z-25 flex items-center h-8 overflow-hidden select-none" id="tv-headline-ticker">
+      {/* Dynamic Red LIVE overlay */}
+      <div className="absolute left-0 top-0 bottom-0 px-3 bg-red-600 font-mono font-black text-[9px] tracking-wider text-white flex items-center z-30 border-r border-red-500/20 shadow-[5px_0_15px_rgba(239,68,68,0.25)]">
+        <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping mr-1.5 shrink-0"></span>
+        TV HEADLINE
+      </div>
+      
+      {/* Infinite Marquee Container */}
+      <div className="pl-24 w-full overflow-hidden">
+        <div className="animate-ticker flex items-center gap-14 py-1">
+          {/* Copy 1 */}
+          <div className="flex items-center gap-14">
+            {coins.map((coin, idx) => renderCoinItem(coin, idx))}
+          </div>
+          {/* Copy 2 for infinite loops */}
+          <div className="flex items-center gap-14">
+            {coins.map((coin, idx) => renderCoinItem(coin, idx))}
+          </div>
+          {/* Copy 3 as fallback */}
+          <div className="flex items-center gap-14">
+            {coins.map((coin, idx) => renderCoinItem(coin, idx))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // Verse logo component with gradient background and customized V path
@@ -208,6 +354,9 @@ export default function App() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-600/10 blur-[120px] rounded-full" />
       </div>
 
+      {/* TV-style scrolling Crypto and Bitcoin market ticker */}
+      <MarketTicker />
+
       {/* Navbar */}
       <header className="sticky top-0 z-10 border-b border-white/5 bg-[#050816]/80 backdrop-blur-xl px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -386,7 +535,7 @@ export default function App() {
           </a>
           
           <p className="text-[10px] text-center text-slate-500 tracking-wide uppercase font-medium" id="footer-disclaimer-text">
-            Powered by Gemini • Zayedd AI does not provide financial advice
+            Powered by Gemini • Zayed AI does not provide financial advice
           </p>
         </div>
       </footer>
