@@ -1,6 +1,6 @@
 {
-  "name": "Zayed AI",
-  "description": "Zayed AI is a smart AI assistant that chats freely about education, languages, math, programming, technology, SEO, general knowledge, and daily life solutions.",
+  "name": "eVerseChatGPT AI",
+  "description": "eVerseChatGPT AI is a professional multi-agent AI assistant platform supporting advanced SEO, coding, step-by-step study summaries, PDF analysis, vocal support, and Verse Token integrations.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
