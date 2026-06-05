@@ -6,7 +6,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { GoogleGenAI } from "@google/genai";
 import { motion, AnimatePresence } from "motion/react";
-import { Send, Bot, User, Loader2, Link2, ExternalLink, Image as ImageIcon, X, TrendingUp, TrendingDown } from "lucide-react";
+import { Send, Bot, User, Loader2, Link2, ExternalLink, Image as ImageIcon, X, TrendingUp, TrendingDown, GraduationCap, Languages, Calculator, Cpu, Code, Briefcase, Globe, Heart, Sparkles, HelpCircle, BookOpen } from "lucide-react";
 
 // Types
 type Role = "ai" | "user";
@@ -199,6 +199,66 @@ export function VerseLogo({ className = "w-6 h-6", glow = false }: { className?:
   );
 }
 
+// Premium topics list with gradients and customized icons matching the requested categories
+const SUGGESTED_TOPICS = [
+  { 
+    id: "verse-eco", 
+    label: "Verse Ecosystem & Web3", 
+    prompt: "What is the Verse Ecosystem, and how does it drive decentralized Web3 utility and community engagement?", 
+    icon: Globe,
+    gradient: "from-cyan-500/10 to-blue-500/10 border-cyan-500/15 text-cyan-200 hover:border-cyan-400/50 hover:bg-cyan-500/15" 
+  },
+  { 
+    id: "verse-token", 
+    label: "VERSE Token Utilities", 
+    prompt: "How does the VERSE token play an important role inside the ecosystem? Show me the wallet registration link http://hub.vgdh.io as well.", 
+    icon: Sparkles,
+    gradient: "from-amber-500/10 to-orange-500/10 border-amber-500/15 text-amber-200 hover:border-amber-400/50 hover:bg-amber-500/15" 
+  },
+  { 
+    id: "edu", 
+    label: "Education & Studies", 
+    prompt: "What are some highly effective science-backed study techniques to learn complex subjects faster and retain them longer?", 
+    icon: GraduationCap,
+    gradient: "from-emerald-500/10 to-teal-500/10 border-emerald-500/15 text-emerald-200 hover:border-emerald-400/50 hover:bg-emerald-500/15" 
+  },
+  { 
+    id: "lang", 
+    label: "Languages & Translations", 
+    prompt: "Can you provide a greeting guide and essential vocabulary table in English, Bengali, Hindi, and Japanese?", 
+    icon: Languages,
+    gradient: "from-indigo-500/10 to-blue-500/10 border-blue-500/15 text-indigo-200 hover:border-indigo-400/50 hover:bg-indigo-500/15" 
+  },
+  { 
+    id: "math", 
+    label: "Mathematics & Finance", 
+    prompt: "Explain how compound interest works and how Web3 yield strategies differ from traditional finance models.", 
+    icon: Calculator,
+    gradient: "from-purple-500/10 to-fuchsia-500/10 border-purple-500/15 text-purple-200 hover:border-purple-400/50 hover:bg-purple-500/15" 
+  },
+  { 
+    id: "science", 
+    label: "Science & AI Technology", 
+    prompt: "What is quantum computing, and what role will artificial intelligence play in Web3 applications of the future?", 
+    icon: Cpu,
+    gradient: "from-cyan-500/10 to-teal-500/10 border-cyan-500/15 text-cyan-200 hover:border-cyan-400/50 hover:bg-cyan-500/15" 
+  },
+  { 
+    id: "prog", 
+    label: "Programming & Code", 
+    prompt: "I want to build highly interactive Web3 sites. Can you show me a detailed roadmap to learn React, TypeScript, and Tailwind CSS?", 
+    icon: Code,
+    gradient: "from-fuchsia-500/10 to-rose-500/10 border-fuchsia-500/15 text-fuchsia-200 hover:border-fuchsia-400/50 hover:bg-fuchsia-500/15" 
+  },
+  { 
+    id: "business", 
+    label: "Business, SEO & Marketing", 
+    prompt: "What are the core practices of On-Page and Off-Page SEO that drive organic Google traffic for start-ups?", 
+    icon: Briefcase,
+    gradient: "from-rose-500/10 to-red-500/10 border-rose-500/15 text-rose-200 hover:border-rose-400/50 hover:bg-rose-500/15" 
+  }
+];
+
 export default function App() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -212,6 +272,14 @@ export default function App() {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const messageInputRef = useRef<HTMLInputElement>(null);
+
+  const handleTopicClick = (promptText: string) => {
+    setMessage(promptText);
+    setTimeout(() => {
+      messageInputRef.current?.focus();
+    }, 50);
+  };
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
@@ -290,9 +358,21 @@ export default function App() {
         model: "gemini-3-flash-preview",
         contents,
         config: {
-          systemInstruction: `You are Zayed AI, a sophisticated, highly intelligent assistant built to chat freely with everyone and give fast, helpful, and smart responses. 
+          systemInstruction: `You are Zayed AI, a sophisticated, highly intelligent assistant built to chat freely with everyone and give fast, helpful, and smart responses in English or any other requested language.
           You can answer almost anything people ask: from simple "Hi", daily conversations, and creative suggestions to specialized topics like technology, learning, ideas, Crypto, Web3, Blockchain, NFTs, and more.
-          You can analyze images of market charts, smart contracts, or Web3 interfaces. Provide accurate, accessible yet smart information. Be friendly, professional, direct, and helpful.
+          We have updated your capabilities to answer ANY simple or complex message perfectly across these core areas:
+          1. Education & Academic study (Study strategies, academic tips, educational guides, and notes)
+          2. Multilingual languages (Translations, vocabulary, greetings, grammar, and syntax guides for English, Bengali, Hindi, Japanese, and others)
+          3. Mathematics & Economics (Step-by-step equations, market mechanics, inflation modeling, advanced math formulas)
+          4. Science & Technology (Scientific breakthroughs, physics, biology, chemistry, computer science, quantum mechanics)
+          5. Programming & Web Development (Coding practices, debugging support, HTML, CSS, JavaScript, TypeScript, React source code)
+          6. Business, SEO & Digital Marketing (Value proposition setup, SEO optimization, keyword research, digital workflow strategy)
+          7. General Knowledge (Global history, geography, geopolitics, current affairs, general knowledge)
+          8. Daily Life & Productivity (Motivation tricks, custom scheduling, beating procrastination, lifestyle advice)
+          9. Verse Ecosystem, Verse Token ($VERSE), and Web3 (Decentralized protocols, Web3 fundamentals, Verse utility functions)
+
+          Always prioritize replying in the language the user asked (usually elegant English, Bengali, or others). Provide comprehensive, easy-to-understand explanations for simple questions and highly analytical, step-by-step solutions for complex programming, mathematics, or tokenomics questions.
+          Provide accurate, accessible yet smart information. Be friendly, professional, direct, and helpful.
           If a user asks for financial advice, clarify that you provide information for educational purposes and are not a financial advisor.
 
           VERSE ECOSYSTEM INFO:
@@ -433,6 +513,51 @@ export default function App() {
             </motion.div>
           ))}
 
+          {chat.length === 1 && (
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.4 }}
+              className="w-full bg-[#090e24]/60 border border-white/10 rounded-2xl p-5 md:p-6 shadow-2xl relative overflow-hidden my-4"
+              id="topics-dashboard"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 blur-[50px] rounded-full pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/5 blur-[50px] rounded-full pointer-events-none" />
+
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="w-5 h-5 text-cyan-400 animate-pulse shrink-0" />
+                <h3 className="text-sm font-extrabold text-white tracking-wide">💬 Ask Zayed AI anything:</h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3" id="categories-grid-sub">
+                {SUGGESTED_TOPICS.map((topic) => (
+                  <button
+                    key={topic.id}
+                    onClick={() => handleTopicClick(topic.prompt)}
+                    className={`flex items-start gap-3 p-3.5 rounded-xl border bg-gradient-to-br ${topic.gradient} hover:scale-[1.01] active:scale-[0.99] transition-all text-left group cursor-pointer duration-200`}
+                    id={`topic-${topic.id}`}
+                  >
+                    <div className="p-2 rounded-lg bg-white/5 border border-white/5 text-cyan-400 group-hover:bg-white/10 group-hover:scale-105 transition-all mt-0.5 shrink-0">
+                      <topic.icon className="w-4 h-4 text-cyan-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-200 group-hover:text-cyan-300 transition-colors">
+                        {topic.label}
+                      </h4>
+                      <p className="text-[11px] text-slate-400 mt-1 leading-snug line-clamp-1 group-hover:text-slate-200 transition-colors">
+                        {topic.prompt}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <p className="text-[11px] text-slate-500 mt-4 text-center leading-normal">
+                ✨ From simple prompts to complex technical queries—chat now to get instant smart answers and real solutions.
+              </p>
+            </motion.div>
+          )}
+
           {isLoading && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -501,6 +626,7 @@ export default function App() {
               </div>
               <input
                 type="text"
+                ref={messageInputRef}
                 placeholder="Search Web3, analyze tokens, or ask questions..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
