@@ -663,9 +663,20 @@ export default function App() {
         })
       });
 
+      const contentType = res.headers.get("content-type") || "";
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Server responded with an unexpected status code.");
+        if (contentType.includes("application/json")) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Server responded with an unexpected status code.");
+        } else {
+          const rawText = await res.text();
+          throw new Error(`Server returned HTML instead of JSON. The backend server might be offline, rebooting, or misconfigured. (Snippet: ${rawText.substring(0, 80).trim()})`);
+        }
+      }
+
+      if (!contentType.includes("application/json")) {
+        const rawText = await res.text();
+        throw new Error(`Expected JSON but received non-JSON stream. (Snippet: ${rawText.substring(0, 80).trim()})`);
       }
 
       const val = await res.json();
@@ -765,9 +776,20 @@ export default function App() {
         })
       });
 
+      const contentType = res.headers.get("content-type") || "";
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Server side generation error.");
+        if (contentType.includes("application/json")) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Server side generation error.");
+        } else {
+          const rawText = await res.text();
+          throw new Error(`Server returned HTML error page instead of JSON. (Snippet: ${rawText.substring(0, 80).trim()})`);
+        }
+      }
+
+      if (!contentType.includes("application/json")) {
+        const rawText = await res.text();
+        throw new Error(`Expected JSON but received non-JSON response. (Snippet: ${rawText.substring(0, 80).trim()})`);
       }
 
       const val = await res.json();
